@@ -25,18 +25,35 @@ document.addEventListener("DOMContentLoaded", function () {
     return `../img/${theme}${isMobile ? "-mobile" : ""}.png`;
   }
 
+  let lastWidth = window.innerWidth;
+  let lastImageType = window.innerWidth <= 768 ? "mobile" : "desktop";
+
   const debouncedUpdateImage = utils.debounce(function () {
-    const isMobile = window.innerWidth <= 768;
-    const imgSrc = getImageSource(data.theme, isMobile);
-    const image = cardDiv.querySelector(".image-container img");
-    if (image && image.src !== imgSrc) {
-      image.style.opacity = "0";
-      setTimeout(() => {
-        image.src = imgSrc;
-        image.style.opacity = "1";
-      }, 300);
+    const currentWidth = window.innerWidth;
+    const currentImageType = currentWidth <= 768 ? "mobile" : "desktop";
+
+    // Проверяем, действительно ли изменился тип устройства
+    if (lastImageType !== currentImageType) {
+      const imgSrc = getImageSource(data.theme, currentWidth <= 768);
+      const image = cardDiv.querySelector(".image-container img");
+
+      if (image && image.src !== imgSrc) {
+        image.style.transition = "opacity 0.3s ease";
+        image.style.opacity = "0";
+
+        setTimeout(() => {
+          image.src = imgSrc;
+          image.onload = () => {
+            image.style.opacity = "1";
+          };
+        }, 300);
+      }
+
+      lastImageType = currentImageType;
     }
-  }, 150);
+
+    lastWidth = currentWidth;
+  }, 250); // Увеличили время debounce
 
   function renderCard() {
     const isMobile = window.innerWidth <= 768;
@@ -54,12 +71,17 @@ document.addEventListener("DOMContentLoaded", function () {
             <p>${utils.escapeHTML(data.text)}</p>
           </div>
           <div class="image-container">
-            <img src="${imgSrc}" alt="Персонаж" style="transition: opacity 0.3s ease">
+            <img src="${imgSrc}" alt="Персонаж" style="transition: opacity 0.3s ease; opacity: 0">
           </div>
         </div>
       </div>
       <p class="sender">Від: ${utils.escapeHTML(data.sender)}</p>
     `;
+
+    const image = cardDiv.querySelector(".image-container img");
+    image.onload = () => {
+      image.style.opacity = "1";
+    };
   }
 
   preloadImages();

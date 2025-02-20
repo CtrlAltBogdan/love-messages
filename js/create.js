@@ -6,7 +6,7 @@ document.getElementById("createForm")?.addEventListener("submit", function (e) {
   const text = form.elements["text"].value.trim();
   const theme = form.elements["theme"].value;
   const sender = form.elements["sender"].value.trim();
-  
+
   if (!name || name.length > 30) {
     alert("Ім'я отримувача має бути від 1 до 30 символів");
     return;
@@ -38,7 +38,6 @@ document.getElementById("createForm")?.addEventListener("submit", function (e) {
   window.location.href = `../love/index.html?data=${compressed}`;
 });
 
-// Добавляем предпросмотр текста
 const textArea = document.getElementById("greetingText");
 if (textArea) {
   textArea.addEventListener(
